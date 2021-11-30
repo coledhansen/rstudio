@@ -1,0 +1,245 @@
+---
+title: "CodeCombat_Cole_Hansen"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{r include = FALSE}
+library(tidyverse)
+library(knitr)
+library(rmarkdown)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/coled/Desktop/BSAN 480/R Studio Assignment")
+```
+
+```{r}
+# Load in Data
+purchase_data <- read_csv("purchase_data.csv")
+head(purchase_data)
+dim(purchase_data)
+```
+
+## Part 1 - Exploratory Data Analysis
+
+```{r}
+# 1. What is the average purchase price for all transactions? 
+avg_price <- mean(purchase_data$Price)
+avg_price
+```
+```{r}
+# 2. What is the total number of transactions? 
+num_trans <- nrow(purchase_data)
+num_trans
+```
+
+```{r}
+# 3. What is the total revenue for all transactions? (ie total of purchase price values)
+purch_total <- sum(purchase_data$Price)
+purch_total
+```
+
+```{r}
+# 4. How many purchases were made by the gender groups Male, Female, & Other/Non-Disclosed?
+gender_number_trans <- 
+  purchase_data %>%
+  group_by(Gender) %>%
+  count()
+
+gender_number_trans
+```
+
+```{r}
+# 5. What is the average purchase price by the gender groups Male, Female, & Other/Non-Disclosed? 
+gender_avg_purch <- 
+  purchase_data %>%
+  group_by(Gender) %>%
+  summarize(average_purchase_price = mean(Price))
+
+gender_avg_purch
+```
+
+```{r}
+# 6. What is the total revenue by the gender groups Male, Female, & Other/Non-Disclosed?
+gender_tot_rev <- 
+  purchase_data %>%
+  group_by(Gender) %>%
+  summarize(total_revenue = sum(Price))
+
+gender_tot_rev
+
+```
+
+```{r}
+# 7. What percentage of the purchases were made by the genders Male & Female? 
+female_num <- gender_number_trans$n[1]
+male_num <- gender_number_trans$n[2]
+total_num <- sum(gender_number_trans$n)
+
+# percentages
+female_perc <- female_num / total_num
+female_perc
+
+male_perc <- male_num / total_num
+male_perc
+```
+
+```{r}
+# 8. How many purchases were made by each unique age in the dataset?
+purch_by_age <- 
+  purchase_data %>%
+  unique() %>%
+  group_by(Age) %>%
+  count()
+
+purch_by_age
+```
+
+```{r}
+# 9. What is the average purchase price by each unique age in the dataset? 
+avg_price_by_age <-
+  purchase_data %>%
+  unique() %>%
+  group_by(Age) %>%
+  summarize(avg_price = mean(Price))
+
+avg_price_by_age
+```
+
+```{r}
+# 10. What is the total revenue by each unique age in the dataset? 
+tot_rev_by_age <-
+  purchase_data %>%
+  unique() %>%
+  group_by(Age) %>%
+  summarize(total_revenue = sum(Price))
+
+tot_rev_by_age
+```
+
+## Extra Credit
+
+```{r}
+# 11. What is the number of unique items sold in our dataset? 
+num_unique_items <-
+  purchase_data %>%
+  unique() %>%
+  group_by(`Item Name`) %>%
+  count() %>%
+  nrow()
+                     
+num_unique_items
+```
+
+```{r}
+# 12. What is the number of unique screen names (SN) in our dataset? 
+num_unique_sn <-
+  purchase_data %>%
+  unique() %>%
+  group_by(SN) %>%
+  count() %>%
+  nrow()
+
+num_unique_sn
+```
+
+```{r}
+# 13.  What screen names (SN) are the top 5 spenders by total purchase price value?
+sn_purch_values <-
+  purchase_data %>%
+  group_by(SN) %>%
+  unique() %>%
+  summarize(Total_Price = sum(Price))
+
+top_sn_purch_values <- arrange(sn_purch_values, -Total_Price)
+
+slice(top_sn_purch_values, 1:5)
+  # Lisosia93
+  # Idastidru52
+  # Chamjask73
+  # Iral74
+  # Iskadarya95
+```
+
+```{r}
+# 14. What are the 5 most popular items by the count of purchases? 
+num_unique_items_list <-
+  purchase_data %>%
+  group_by(`Item Name`) %>%
+  unique() %>%
+  count()
+
+top_unique_items_values <- arrange(num_unique_items_list, -n)
+
+slice(data.frame(top_unique_items_values), 1:5)
+  # Final Critic
+  # Oathbreaker, Last Hope of the Breaking Storm
+  # Extraction, Quickblade Of Trembling Hands
+  # Fiery Glass Crusader
+  # Nirvana
+  ### Persuasion (Tied for 3rd also with n = 9)
+```
+
+```{r}
+# 15. What are the 5 most profitable items by total purchase price value? 
+item_purch_values <-
+  purchase_data %>%
+  group_by(`Item Name`) %>%
+  unique() %>%
+  summarize(Total_Price = sum(Price))
+
+top_sn_purch_values <- arrange(item_purch_values, -Total_Price)
+
+slice(top_sn_purch_values, 1:5)
+  # Final Critic
+  # Oathbreaker, Last Hope of the Breaking Storm
+  # Nirvana
+  # Fiery Glass Crusader
+  # Singed Scalpel
+```
+
+## Part 2 - Data Visualization
+
+```{r}
+# 1. Histogram of Price values 
+hist(purchase_data$Price,
+     xlab = 'Price',
+     main = 'Histogram of Price values',
+     col = 'blue')
+```
+
+```{r}
+# 2. Histogram of Age values
+hist(purchase_data$Age,
+     xlab = 'Price',
+     main = 'Histogram of Age values',
+     col = 'red')
+```
+
+```{r}
+# 3. Bar chart of Gender values 
+gender_table <- table(purchase_data$Gender)
+barplot(gender_table, horiz = TRUE, col = heat.colors(5), las=1, cex.names=0.75,
+        main = 'Bar chart of Gender values')
+```
+
+```{r}
+# 4. Boxplot of Price values 
+boxplot(purchase_data['Price'], main = "Boxplot of Price values",
+        ylab = 'Price')
+```
+
+```{r}
+# 5. Boxplot of Age values 
+boxplot(purchase_data['Age'], main = "Boxplot of Age values",
+        ylab = 'Age')
+```
+
+```{r}
+# 6. Scatter plot of Age & Price 
+plot(purchase_data$Age, purchase_data$Price,
+     ylab = 'Price', xlab = 'Age', main = 'Scatter plot of Age & Price',
+     pch = 5, col = 'blue')
+```
